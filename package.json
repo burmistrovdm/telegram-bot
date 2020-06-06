@@ -5,7 +5,8 @@
     "main": "src/index.ts",
     "scripts": {
         "dev": "ts-node --files src/index.ts",
-        "start": "ts-node dist/index.js",
+        "nodemon": "nodemon",
+        "start": "npm run prebuild && npm run build && node dist/index.js",
         "prebuild": "tslint -c tslint.json -p tsconfig.json --fix",
         "build": "tsc -p ."
     },
@@ -19,7 +20,8 @@
     "devDependencies": {
         "@types/node": "^13.13.2",
         "@types/node-telegram-bot-api": "^0.40.3",
-        "ts-node": "^8.9.0",
+        "nodemon": "^2.0.4",
+        "ts-node": "^8.10.2",
         "tslint": "^6.1.1",
         "typescript": "^3.8.3"
     }
