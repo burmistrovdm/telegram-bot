@@ -1,4 +1,4 @@
-FROM node:lts
+FROM node:lts-alpine
 
 # создание директории приложения
 WORKDIR /usr/src/app
@@ -8,14 +8,14 @@ WORKDIR /usr/src/app
 # скопировать оба файла: package.json и package-lock.json
 COPY package*.json ./
 
-RUN npm install
+RUN npm install --quiet
 # Если вы создаете сборку для продакшн
 # RUN npm ci --only=production
 
-RUN npm run prebuild 
-RUN npm run build
-
 # копируем исходный код
 COPY . .
+
+RUN npm run prebuild
+RUN npm run build
 
 CMD [ "node", "dist/index.js" ]
