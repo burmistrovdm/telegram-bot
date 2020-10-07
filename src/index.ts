@@ -1,7 +1,9 @@
 import Telegraf = require('telegraf');
 import dotenv = require('dotenv');
 import process = require('process');
+import fs = require('fs');
 import { exec } from 'child_process';
+import { checkExistsWithTimeout } from './helpers';
 
 dotenv.config();
 const BOT_TOKEN = process.env.BOT_TOKEN;
@@ -19,7 +21,23 @@ bot.command('stop', () => {
         exec(`killall vlc`);
         process.stdout.write('stopped vlc\n');
     } catch (e) {
-        process.stdout.write('comand handling error\n');
+        process.stdout.write('stop comand handling error\n');
+        process.stdout.write(JSON.stringify(e));
+    }
+});
+
+// get a photo
+const photoPath = '/home/pi/Pictures/photo.jpg';
+const shotDuration = 2000;
+bot.command('photo', async (ctx: any) => {
+    try {
+        exec(`raspistill -t ${shotDuration} -o ${photoPath}`);
+        await checkExistsWithTimeout(photoPath, shotDuration * 2);
+        await ctx.replyWithPhoto({ source: fs.readFileSync(photoPath) });
+        fs.unlinkSync(photoPath);
+        process.stdout.write('get a photo\n');
+    } catch (e) {
+        process.stdout.write('photo command handling error\n');
         process.stdout.write(JSON.stringify(e));
     }
 });
