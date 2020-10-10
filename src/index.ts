@@ -16,7 +16,10 @@ process.stdout.write('telegram bot was launch\n');
 // Naive authorization middleware
 bot.use((ctx: any, next: () => void) => {
     const access = process.env.ALLOW_ACCESS?.split(', ').includes(String(ctx.from.id));
-    if (!access) return new Error('User has not access');
+    if (!access) {
+        process.stdout.write('user access error\n');
+        return;
+    }
     return next();
 });
 
@@ -53,7 +56,8 @@ const videoDuration = 60000;
 bot.command('video', async (ctx: any) => {
     try {
         exec(`raspivid -t ${videoDuration} -o ${videoPath}`);
-        await checkExistsWithTimeout(videoPath, videoDuration * 2);
+        await new Promise((res) => setTimeout(res, videoDuration * 1.5));
+        await checkExistsWithTimeout(videoPath, videoDuration / 2);
         await ctx.replyWithVideo({ source: fs.readFileSync(videoPath) });
         fs.unlinkSync(videoPath);
         process.stdout.write('get a video\n');
