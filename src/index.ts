@@ -3,7 +3,7 @@ import dotenv = require('dotenv');
 import process = require('process');
 import fs = require('fs');
 import { exec } from 'child_process';
-import { checkExistsWithTimeout } from './helpers';
+import { checkExistsWithTimeout, urlRegExp } from './helpers';
 
 dotenv.config();
 const BOT_TOKEN = process.env.BOT_TOKEN;
@@ -13,7 +13,12 @@ const bot = new (Telegraf as any)(process.env.BOT_TOKEN);
 
 process.stdout.write('telegram bot was launch\n');
 
-const urlRegExp = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
+// Naive authorization middleware
+bot.use((ctx: any, next: () => void) => {
+    const access = process.env.ALLOW_ACCESS?.split(', ').includes(String(ctx.from.id));
+    if (!access) return new Error('User has not access');
+    return next();
+});
 
 // stop vlc player
 bot.command('stop', () => {
@@ -38,6 +43,22 @@ bot.command('photo', async (ctx: any) => {
         process.stdout.write('get a photo\n');
     } catch (e) {
         process.stdout.write('photo command handling error\n');
+        process.stdout.write(JSON.stringify(e));
+    }
+});
+
+// get a video
+const videoPath = '/home/pi/Videos/video.h264';
+const videoDuration = 60000;
+bot.command('video', async (ctx: any) => {
+    try {
+        exec(`raspivid -t ${videoDuration} -o ${videoPath}`);
+        await checkExistsWithTimeout(videoPath, videoDuration * 2);
+        await ctx.replyWithVideo({ source: fs.readFileSync(videoPath) });
+        fs.unlinkSync(videoPath);
+        process.stdout.write('get a video\n');
+    } catch (e) {
+        process.stdout.write('video command handling error\n');
         process.stdout.write(JSON.stringify(e));
     }
 });
