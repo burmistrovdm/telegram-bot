@@ -13,7 +13,7 @@ const bot = new (Telegraf as any)(process.env.BOT_TOKEN);
 
 process.stdout.write('telegram bot was launch\n');
 
-// Naive authorization middleware
+// authorization middleware
 bot.use((ctx: any, next: () => void) => {
     const access = process.env.ALLOW_ACCESS?.split(', ').includes(String(ctx.from.id));
     if (!access) {
@@ -46,23 +46,6 @@ bot.command('photo', async (ctx: any) => {
         process.stdout.write('get a photo\n');
     } catch (e) {
         process.stdout.write('photo command handling error\n');
-        process.stdout.write(JSON.stringify(e));
-    }
-});
-
-// get a video
-const videoPath = '/home/pi/Videos/video.h264';
-const videoDuration = 60000;
-bot.command('video', async (ctx: any) => {
-    try {
-        exec(`raspivid -t ${videoDuration} -o ${videoPath}`);
-        await new Promise((res) => setTimeout(res, videoDuration * 1.5));
-        await checkExistsWithTimeout(videoPath, videoDuration / 2);
-        await ctx.replyWithVideo({ source: fs.readFileSync(videoPath) });
-        fs.unlinkSync(videoPath);
-        process.stdout.write('get a video\n');
-    } catch (e) {
-        process.stdout.write('video command handling error\n');
         process.stdout.write(JSON.stringify(e));
     }
 });
