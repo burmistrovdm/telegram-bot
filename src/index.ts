@@ -50,6 +50,29 @@ bot.command('photo', async (ctx: any) => {
     }
 });
 
+const videoFileName = 'pivideo.mp4';
+const videoPath = `/home/pi/Videos/${videoFileName}`;
+bot.command('video', async (ctx: any) => {
+    try {
+        await new Promise((res) =>
+            exec(
+                `
+                    raspivid -t 30000 -w 640 -h 480 -fps 25 -b 1200000 -p 0,0,640,480 -o pivideo.h264
+                    MP4Box -add pivideo.h264 ${videoPath}
+                    rm pivideo.h264
+                `,
+                res,
+            ),
+        );
+        await ctx.replyWithVideo({ source: fs.readFileSync(videoPath) });
+        fs.unlinkSync(videoPath);
+        process.stdout.write('get a 30 sec video\n');
+    } catch (e) {
+        process.stdout.write('video command handling error\n');
+        process.stdout.write(JSON.stringify(e));
+    }
+});
+
 // run vlc player
 bot.on('message', (ctx: any) => {
     const message: string | undefined = ctx.message.text;
