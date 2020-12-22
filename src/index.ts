@@ -76,18 +76,17 @@ bot.command('video', async (ctx: any) => {
 });
 
 const dirPath = `/home/pi/Videos`;
-
 bot.command('last_video', async (ctx: any) => {
     try {
         const files = await fs.promises.readdir(dirPath);
         const filePaths = files.map((fileName) => path.join(dirPath, fileName));
         filePaths.sort((a, b) => fs.statSync(a).ctimeMs - fs.statSync(b).ctimeMs);
-        const penult_file = filePaths.slice(-2)?.[0];
-        if (!penult_file) {
+        const penultFile = filePaths.slice(-2)?.[0];
+        if (!penultFile) {
             ctx.reply(`no files at ${dirPath} path`);
             return;
         }
-        await new Promise((res) => exec(`MP4Box -add ${penult_file} ${videoPath}`, res));
+        await new Promise((res) => exec(`MP4Box -add ${penultFile} ${videoPath}`, res));
         await ctx.replyWithVideo({ source: fs.readFileSync(videoPath) });
         fs.unlinkSync(videoPath);
         process.stdout.write('get last video file\n');
