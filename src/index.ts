@@ -7,16 +7,16 @@ import { exec } from 'child_process';
 import { checkExistsWithTimeout, urlRegExp } from './helpers';
 
 dotenv.config();
-const BOT_TOKEN = process.env.BOT_TOKEN;
+const { BOT_TOKEN, SERVER_URL, ALLOW_ACCESS } = process.env;
 if (!BOT_TOKEN) throw new Error('set your token at .env -> BOT_TOKEN');
 
-const bot = new (Telegraf as any)(process.env.BOT_TOKEN);
+const bot = new (Telegraf as any)(BOT_TOKEN);
 
 process.stdout.write('telegram bot was launch\n');
 
 // authorization middleware
 bot.use((ctx: any, next: () => void) => {
-    const access = process.env.ALLOW_ACCESS?.split(', ').includes(String(ctx.from.id));
+    const access = ALLOW_ACCESS?.split(', ').includes(String(ctx.from.id));
     if (!access) {
         process.stdout.write('user access error\n');
         return;
@@ -75,6 +75,7 @@ bot.command('video', async (ctx: any) => {
     }
 });
 
+// get last 2min videofile
 const dirPath = `/home/pi/Videos`;
 bot.command('last_video', async (ctx: any) => {
     try {
@@ -111,4 +112,7 @@ bot.on('message', (ctx: any) => {
     }
 });
 
+const port = 5000;
+bot.telegram.setWebhook(`${SERVER_URL}/secret-path`);
+bot.startWebhook('/secret-path', null, port);
 bot.launch();

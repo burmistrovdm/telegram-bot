@@ -6,21 +6,22 @@
     "scripts": {
         "dev": "ts-node --files src/index.ts",
         "nodemon": "nodemon",
-        "start": "npm run prebuild && npm run build && node dist/index.js",
+        "start": "node dist/index.js",
+        "launch": "npm run prebuild && npm run build && npm run start",
         "prebuild": "tslint -c tslint.json -p tsconfig.json --fix",
         "build": "tsc -p ."
     },
     "author": "burmistrovdm",
     "license": "ISC",
     "dependencies": {
-        "dotenv": "^8.2.0",
-        "telegraf": "^3.38.0"
-    },
-    "devDependencies": {
         "@types/node": "^13.13.2",
-        "nodemon": "^2.0.4",
-        "ts-node": "^8.10.2",
+        "dotenv": "^8.2.0",
+        "telegraf": "^3.38.0",
         "tslint": "^6.1.1",
         "typescript": "^3.8.3"
+    },
+    "devDependencies": {
+        "nodemon": "^2.0.4",
+        "ts-node": "^8.10.2"
     }
 }
